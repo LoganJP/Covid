@@ -1,0 +1,111 @@
+#include <iostream>
+#include <limits>
+#include <iomanip>
+#include <vector>
+
+class VideoGame {
+protected:
+    std::string title;
+    double price;
+
+public:
+    VideoGame(const std::string& t, double p) : title(t), price(p) {}
+
+    virtual void display() const {
+        std::cout << "Title: " << title << "\nPrice: $" << price << std::endl;
+    }
+};
+
+class ComputerGame : public VideoGame {
+private:
+    std::string osType;
+
+public:
+    ComputerGame(const std::string& t, double p, const std::string& os)
+        : VideoGame(t, p), osType(os) {}
+
+    void display() const override {
+        VideoGame::display();
+        std::cout << "Operating System: " << osType << std::endl;
+    }
+};
+
+class ConsoleGame : public VideoGame {
+private:
+    std::string osType;
+
+public:
+    ConsoleGame(const std::string& t, double p, const std::string& os)
+        : VideoGame(t, p), osType(os) {}
+
+    void display() const override {
+        VideoGame::display();
+        std::cout << "Operating System: " << osType << std::endl;
+    }
+};
+
+int main() {
+    const int maxGames = 5;
+    std::vector<VideoGame*> videoGamesArray;
+
+    char addAnother = 'Y';
+
+    while (videoGamesArray.size() < maxGames && (addAnother == 'Y' || addAnother == 'y')) {
+        if (addAnother != 'Y' && addAnother != 'y') {
+            std::cout << "Video Game Data Entry\n";
+            std::cout << std::setfill('*') << std::setw(32) << "" << std::endl;
+        }
+
+        std::cout << "Do you want to enter data for a computer game or a console game? (O/C): ";
+        char choice;
+        std::cin >> choice;
+
+        std::string title;
+        double price;
+        std::string osType;
+
+        std::cout << "Please enter title of the game: ";
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::getline(std::cin, title);
+
+        std::cout << "Please enter price: $";
+        std::cin >> price;
+
+        if (choice == 'C' || choice == 'c') {
+            std::cout << "Please enter operating system type: ";
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::getline(std::cin, osType);
+            videoGamesArray.push_back(new ConsoleGame(title, price, osType));
+        } else if (choice == 'O' || choice == 'o') {
+            std::cout << "Please enter operating system type: ";
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::getline(std::cin, osType);
+            videoGamesArray.push_back(new ComputerGame(title, price, osType));
+        } else {
+            std::cout << "Invalid choice. Try again." << std::endl;
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            continue;
+        }
+
+        std::cout << "Do you want to add another item (Y/N): ";
+        std::cin >> addAnother;
+    }
+
+    std::cout << "\n\n\n\n";
+
+    std::cout << "Video Games List" << std::endl;
+    std::cout << std::setfill('*') << std::setw(80) << "" << std::endl;
+
+    for (const auto& game : videoGamesArray) {
+        game->display();
+    }
+
+    std::cout << std::setfill('*') << std::setw(80) << "" << std::endl;
+
+    for (const auto& game : videoGamesArray) {
+        delete game;
+    }
+
+    return 0;
+}
