@@ -31,7 +31,6 @@ void createAccount(std::vector<User>& users, std::vector<Admin>& admins) {
         std::cout << "Enter password: ";
         std::cin >> newUser.password;
 
-        // Assign a unique ID to the user
         static int userIDCounter = 1;
         newUser.userID = "ID" + std::to_string(userIDCounter++);
 
@@ -76,7 +75,7 @@ bool adminLogin(const std::vector<Admin>& admins, std::string username, std::str
 void updateUserInfo(User& user) {
     std::cout << "Updating user information...\n";
     std::cout << "Enter new details: ";
-    std::cin.ignore(); // Clear the input buffer
+    std::cin.ignore();
     std::getline(std::cin, user.details);
 }
 
@@ -91,7 +90,6 @@ void recordVaccine(User& user) {
     std::cout << "Enter Exp: ";
     std::string exp;
     std::cin >> exp;
-    // Store entered vaccine information for the user
     user.vaccineRecords += "\nDate: " + date + ", Vaccine Name: " + vaccineName + ", Exp: " + exp;
 }
 
@@ -155,8 +153,6 @@ void adminMenu(std::vector<User>& users) {
 
         switch (adminChoice) {
             case 1:
-                // Logic to find and update user information
-                // For example:
                 std::cout << "Enter user ID to update info: ";
                 size_t userID;
                 std::cin >> userID;
@@ -168,8 +164,6 @@ void adminMenu(std::vector<User>& users) {
                 break;
 
             case 2:
-                // Logic to record vaccine for a specific user
-                // For example:
                 std::cout << "Enter user ID to record vaccine: ";
                 std::cin >> userID;
                 if (userID < users.size()) {
@@ -180,8 +174,6 @@ void adminMenu(std::vector<User>& users) {
                 break;
 
             case 3:
-                // Logic to view QR code for a specific user
-                // For example:
                 std::cout << "Enter user ID to view QR code: ";
                 std::cin >> userID;
                 if (userID < users.size()) {
@@ -231,8 +223,7 @@ int main() {
                 std::cout << "Enter password: ";
                 std::cin >> password;
                 if (userLogin(users, username, password)) {
-                    // Logic to find user index after login
-                    size_t userIndex = 0; // Replace with actual logic to find user index
+                    size_t userIndex = 0;
                     userMenu(users[userIndex]);
                 }
                 break;
@@ -259,3 +250,4 @@ int main() {
 
     return 0;
 }
+
