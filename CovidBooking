@@ -1,111 +1,261 @@
 #include <iostream>
-#include <limits>
-#include <iomanip>
 #include <vector>
+#include <fstream>
 
-class VideoGame {
-protected:
-    std::string title;
-    double price;
-
-public:
-    VideoGame(const std::string& t, double p) : title(t), price(p) {}
-
-    virtual void display() const {
-        std::cout << "Title: " << title << "\nPrice: $" << price << std::endl;
-    }
+struct User {
+    std::string userID;
+    std::string username;
+    std::string password;
+    std::string details;
+    std::string covidTests;
+    std::string vaccineRecords;
+    std::string qrCode;
 };
 
-class ComputerGame : public VideoGame {
-private:
-    std::string osType;
-
-public:
-    ComputerGame(const std::string& t, double p, const std::string& os)
-        : VideoGame(t, p), osType(os) {}
-
-    void display() const override {
-        VideoGame::display();
-        std::cout << "Operating System: " << osType << std::endl;
-    }
+struct Admin {
+    std::string username;
+    std::string password;
 };
 
-class ConsoleGame : public VideoGame {
-private:
-    std::string osType;
+void createAccount(std::vector<User>& users, std::vector<Admin>& admins) {
+    int accountType;
+    std::cout << "Choose account type to create:\n";
+    std::cout << "1. User Account\n";
+    std::cout << "2. Admin Account\n";
+    std::cin >> accountType;
 
-public:
-    ConsoleGame(const std::string& t, double p, const std::string& os)
-        : VideoGame(t, p), osType(os) {}
+    if (accountType == 1) {
+        User newUser;
+        std::cout << "Enter username: ";
+        std::cin >> newUser.username;
+        std::cout << "Enter password: ";
+        std::cin >> newUser.password;
 
-    void display() const override {
-        VideoGame::display();
-        std::cout << "Operating System: " << osType << std::endl;
+        // Assign a unique ID to the user
+        static int userIDCounter = 1;
+        newUser.userID = "ID" + std::to_string(userIDCounter++);
+
+        users.push_back(newUser);
+        std::cout << "User account created successfully! Your User ID is: " << newUser.userID << "\n";
+    } else if (accountType == 2) {
+        Admin newAdmin;
+        std::cout << "Enter admin username: ";
+        std::cin >> newAdmin.username;
+        std::cout << "Enter admin password: ";
+        std::cin >> newAdmin.password;
+
+        admins.push_back(newAdmin);
+        std::cout << "Admin account created successfully!\n";
+    } else {
+        std::cout << "Invalid account type selected.\n";
     }
-};
+}
+
+bool userLogin(const std::vector<User>& users, std::string username, std::string password) {
+    for (const auto& user : users) {
+        if (user.username == username && user.password == password) {
+            std::cout << "Logged in successfully!\n";
+            return true;
+        }
+    }
+    std::cout << "Invalid username or password. Login failed.\n";
+    return false;
+}
+
+bool adminLogin(const std::vector<Admin>& admins, std::string username, std::string password) {
+    for (const auto& admin : admins) {
+        if (admin.username == username && admin.password == password) {
+            std::cout << "Admin logged in successfully!\n";
+            return true;
+        }
+    }
+    std::cout << "Invalid admin credentials. Login failed.\n";
+    return false;
+}
+
+void updateUserInfo(User& user) {
+    std::cout << "Updating user information...\n";
+    std::cout << "Enter new details: ";
+    std::cin.ignore(); // Clear the input buffer
+    std::getline(std::cin, user.details);
+}
+
+void recordVaccine(User& user) {
+    std::cout << "Recording vaccine information...\n";
+    std::cout << "Enter Date: ";
+    std::string date;
+    std::cin >> date;
+    std::cout << "Enter Vaccine Name: ";
+    std::string vaccineName;
+    std::cin >> vaccineName;
+    std::cout << "Enter Exp: ";
+    std::string exp;
+    std::cin >> exp;
+    // Store entered vaccine information for the user
+    user.vaccineRecords += "\nDate: " + date + ", Vaccine Name: " + vaccineName + ", Exp: " + exp;
+}
+
+void viewQRCode(const User& user) {
+    std::cout << "QR code: " << user.qrCode << "\n";
+}
+
+void logMessages(const std::string& message, const std::string& fileName) {
+    std::ofstream file(fileName, std::ios_base::app);
+    if (file.is_open()) {
+        file << message << "\n";
+        file.close();
+    } else {
+        std::cout << "Unable to open file " << fileName << " for logging.\n";
+    }
+}
+
+void userMenu(User& user) {
+    int userChoice;
+    do {
+        std::cout << "\n1. Update Info\n";
+        std::cout << "2. Record Vaccine\n";
+        std::cout << "3. View QR Code\n";
+        std::cout << "4. Log Out\n";
+        std::cout << "Enter your choice: ";
+        std::cin >> userChoice;
+
+        switch (userChoice) {
+            case 1:
+                updateUserInfo(user);
+                break;
+
+            case 2:
+                recordVaccine(user);
+                break;
+
+            case 3:
+                viewQRCode(user);
+                break;
+
+            case 4:
+                std::cout << "Logging out...\n";
+                break;
+
+            default:
+                std::cout << "Invalid choice. Please enter a valid option.\n";
+                break;
+        }
+    } while (userChoice != 4);
+}
+
+void adminMenu(std::vector<User>& users) {
+    int adminChoice;
+    do {
+        std::cout << "\n1. Update User Info\n";
+        std::cout << "2. Record User Vaccine\n";
+        std::cout << "3. View User QR Code\n";
+        std::cout << "4. Log Out\n";
+        std::cout << "Enter your choice: ";
+        std::cin >> adminChoice;
+
+        switch (adminChoice) {
+            case 1:
+                // Logic to find and update user information
+                // For example:
+                std::cout << "Enter user ID to update info: ";
+                size_t userID;
+                std::cin >> userID;
+                if (userID < users.size()) {
+                    updateUserInfo(users[userID]);
+                } else {
+                    std::cout << "Invalid user ID.\n";
+                }
+                break;
+
+            case 2:
+                // Logic to record vaccine for a specific user
+                // For example:
+                std::cout << "Enter user ID to record vaccine: ";
+                std::cin >> userID;
+                if (userID < users.size()) {
+                    recordVaccine(users[userID]);
+                } else {
+                    std::cout << "Invalid user ID.\n";
+                }
+                break;
+
+            case 3:
+                // Logic to view QR code for a specific user
+                // For example:
+                std::cout << "Enter user ID to view QR code: ";
+                std::cin >> userID;
+                if (userID < users.size()) {
+                    viewQRCode(users[userID]);
+                } else {
+                    std::cout << "Invalid user ID.\n";
+                }
+                break;
+
+            case 4:
+                std::cout << "Logging out...\n";
+                break;
+
+            default:
+                std::cout << "Invalid choice. Please enter a valid option.\n";
+                break;
+        }
+    } while (adminChoice != 4);
+}
 
 int main() {
-    const int maxGames = 5;
-    std::vector<VideoGame*> videoGamesArray;
+    std::vector<User> users;
+    std::vector<Admin> admins;
 
-    char addAnother = 'Y';
+    Admin admin{"admin", "adminpass"};
+    admins.push_back(admin);
 
-    while (videoGamesArray.size() < maxGames && (addAnother == 'Y' || addAnother == 'y')) {
-        if (addAnother != 'Y' && addAnother != 'y') {
-            std::cout << "Video Game Data Entry\n";
-            std::cout << std::setfill('*') << std::setw(32) << "" << std::endl;
-        }
+    int choice;
+    std::string username, password;
 
-        std::cout << "Do you want to enter data for a computer game or a console game? (O/C): ";
-        char choice;
+    do {
+        std::cout << "1. Create Account\n";
+        std::cout << "2. User Login\n";
+        std::cout << "3. Admin Login\n";
+        std::cout << "4. Exit\n";
+        std::cout << "Enter your choice: ";
         std::cin >> choice;
 
-        std::string title;
-        double price;
-        std::string osType;
+        switch (choice) {
+            case 1:
+                createAccount(users, admins);
+                break;
 
-        std::cout << "Please enter title of the game: ";
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::getline(std::cin, title);
+            case 2:
+                std::cout << "Enter username: ";
+                std::cin >> username;
+                std::cout << "Enter password: ";
+                std::cin >> password;
+                if (userLogin(users, username, password)) {
+                    // Logic to find user index after login
+                    size_t userIndex = 0; // Replace with actual logic to find user index
+                    userMenu(users[userIndex]);
+                }
+                break;
 
-        std::cout << "Please enter price: $";
-        std::cin >> price;
+            case 3:
+                std::cout << "Enter admin username: ";
+                std::cin >> username;
+                std::cout << "Enter admin password: ";
+                std::cin >> password;
+                if (adminLogin(admins, username, password)) {
+                    adminMenu(users);
+                }
+                break;
 
-        if (choice == 'C' || choice == 'c') {
-            std::cout << "Please enter operating system type: ";
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::getline(std::cin, osType);
-            videoGamesArray.push_back(new ConsoleGame(title, price, osType));
-        } else if (choice == 'O' || choice == 'o') {
-            std::cout << "Please enter operating system type: ";
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::getline(std::cin, osType);
-            videoGamesArray.push_back(new ComputerGame(title, price, osType));
-        } else {
-            std::cout << "Invalid choice. Try again." << std::endl;
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            continue;
+            case 4:
+                std::cout << "Exiting...\n";
+                break;
+
+            default:
+                std::cout << "Invalid choice. Please enter a valid option.\n";
+                break;
         }
-
-        std::cout << "Do you want to add another item (Y/N): ";
-        std::cin >> addAnother;
-    }
-
-    std::cout << "\n\n\n\n";
-
-    std::cout << "Video Games List" << std::endl;
-    std::cout << std::setfill('*') << std::setw(80) << "" << std::endl;
-
-    for (const auto& game : videoGamesArray) {
-        game->display();
-    }
-
-    std::cout << std::setfill('*') << std::setw(80) << "" << std::endl;
-
-    for (const auto& game : videoGamesArray) {
-        delete game;
-    }
+    } while (choice != 4);
 
     return 0;
 }
